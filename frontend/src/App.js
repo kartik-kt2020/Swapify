@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Navbar from "./components/Navbar";
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -6,16 +7,19 @@ function App() {
   const [skillsOffered, setSkillsOffered] = useState("");
   const [skillsWanted, setSkillsWanted] = useState("");
   const [matches, setMatches] = useState({});
-const findMatches = (id) => {
-  fetch(`http://localhost:5000/match/${id}`)
-    .then(res => res.json())
-    .then(data => {
-      setMatches(prev => ({
-        ...prev,
-        [id]: data
-      }));
-    });
-};
+
+  const findMatches = (id) => {
+    fetch(`http://localhost:5000/match/${id}`)
+      .then(res => res.json())
+      .then(data => {
+  setMatches(prev => ({
+    ...prev,
+    [id]: data
+  }));
+});
+  };
+
+
 
   // Fetch users
   const fetchUsers = () => {
@@ -52,6 +56,7 @@ const findMatches = (id) => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <Navbar />
       <h1>Swapify 👥</h1>
 
       {/* FORM */}
@@ -79,6 +84,18 @@ const findMatches = (id) => {
       <br /><br />
 
       <button onClick={addUser}>Add User</button>
+      <button onClick={() => {
+        fetch("http://localhost:5000/users", {
+          method: "DELETE"
+        })
+        .then(res => res.json())
+        .then(() => {
+          fetchUsers(); // refresh users
+          setMatches({}); // clear matches
+        });
+      }} style={{ marginLeft: "10px" }}>
+        Clear Users
+      </button>
 
       <hr />
 
@@ -122,4 +139,4 @@ const findMatches = (id) => {
     </div>
   );
 }     
- export default App;
+export default App;

@@ -29,6 +29,13 @@ app.post("/users", (req, res) => {
         user: newUser
     });
 });
+app.delete("/users", (req, res) => {
+    users.length = 0; // clear array
+
+    res.json({
+        message: "All users deleted 🗑️"
+    });
+});
 app.listen(5000, () => {
     console.log("Server running on port 5000");
 });
