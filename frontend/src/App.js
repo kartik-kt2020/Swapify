@@ -7,18 +7,23 @@ function App() {
   const [skillsOffered, setSkillsOffered] = useState("");
   const [skillsWanted, setSkillsWanted] = useState("");
   const [matches, setMatches] = useState({});
+  const [loadingId, setLoadingId] = useState(null);
 
-  const findMatches = (id) => {
-    fetch(`http://localhost:5000/match/${id}`)
-      .then(res => res.json())
-      .then(data => {
-  setMatches(prev => ({
-    ...prev,
-    [id]: data
-  }));
-});
-  };
+ const findMatches = (id) => {
+  setLoadingId(id);
 
+  fetch(`http://localhost:5000/match/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      setTimeout(() => {   // 👈 ADD THIS
+        setMatches(prev => ({
+          ...prev,
+          [id]: data
+        }));
+        setLoadingId(null);
+      }, 1000); // 1 second delay
+    });
+};
 
 
   // Fetch users
@@ -41,8 +46,13 @@ function App() {
       },
       body: JSON.stringify({
         name,
-        skillsOffered: skillsOffered.split(","),
-        skillsWanted: skillsWanted.split(",")
+       skillsOffered: skillsOffered
+  .split(",")
+  .map(skill => skill.trim().toLowerCase()),
+
+skillsWanted: skillsWanted
+  .split(",")
+  .map(skill => skill.trim().toLowerCase())
       })
     })
     .then(res => res.json())
@@ -111,9 +121,9 @@ function App() {
     <p>Offers: {user.skillsOffered.join(", ")}</p>
     <p>Wants: {user.skillsWanted.join(", ")}</p>
 
-    <button onClick={() => findMatches(user.id)}>
-      Find Matches
-    </button>
+  <button onClick={() => findMatches(user.id)}>
+  {loadingId === user.id ? "Finding..." : "Find Matches"}
+</button>
 
     {/* MATCH RESULTS */}
     {matches[user.id] && (
@@ -125,9 +135,11 @@ function App() {
         ) : (
           matches[user.id].map(match => (
             <div key={match.id}>
-              <p>
-                🤝 {match.name} (Offers: {match.skillsOffered.join(", ")})
-              </p>
+            <p>
+  🤝 {match.name} <br />
+  Offers: {match.skillsOffered.join(", ")} <br />
+  ⭐ Score: {match.score}
+</p>
             </div>
           ))
         )}

@@ -11,6 +11,7 @@ app.get("/", (req, res) => {
 });
 
 const users = [];
+const chats = {}; // 👈 ADD HERE
 app.get("/users", (req, res) => {
     res.json(users);
 });
@@ -48,19 +49,32 @@ app.get("/match/:id", (req, res) => {
         return res.json({ message: "User not found" });
     }
 
-    const matches = users.filter(user => {
-        if (user.id === userId) return false;
+   const matches = users
+  .filter(user => {
+    if (user.id === currentUser.id) return false;
 
-        const canTeach = user.skillsOffered.some(skill =>
-            currentUser.skillsWanted.includes(skill)
-        );
+    const theyOffer = user.skillsOffered.filter(skill =>
+      currentUser.skillsWanted.includes(skill)
+    );
 
-        const canLearn = user.skillsWanted.some(skill =>
-            currentUser.skillsOffered.includes(skill)
-        );
+    const iOffer = currentUser.skillsOffered.filter(skill =>
+      user.skillsWanted.includes(skill)
+    );
 
-        return canTeach && canLearn;
-    });
+    return theyOffer.length > 0 && iOffer.length > 0;
+  })
+  .map(user => {
+    const score =
+      user.skillsOffered.filter(skill =>
+        currentUser.skillsWanted.includes(skill)
+      ).length +
+      currentUser.skillsOffered.filter(skill =>
+        user.skillsWanted.includes(skill)
+      ).length;
+
+    return { ...user, score };
+  })
+  .sort((a, b) => b.score - a.score);
 
     res.json(matches);
 });
