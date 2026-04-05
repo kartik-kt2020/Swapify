@@ -32,9 +32,12 @@ app.post("/users", (req, res) => {
 });
 app.delete("/users", (req, res) => {
     users.length = 0; // clear array
+      for (let key in chats) {
+        delete chats[key];
+    }
 
     res.json({
-        message: "All users deleted 🗑️"
+        message: "All users and chats deleted 🗑️"
     });
 });
 app.listen(5000, () => {
@@ -77,4 +80,27 @@ app.get("/match/:id", (req, res) => {
   .sort((a, b) => b.score - a.score);
 
     res.json(matches);
+});
+app.post("/sendMessage", (req, res) => {
+  const { fromId, toId, message } = req.body;
+
+  const chatKey = [fromId, toId].sort().join("_");
+
+  if (!chats[chatKey]) {
+    chats[chatKey] = [];
+  }
+
+  chats[chatKey].push({
+    fromId,
+    message
+  });
+
+  res.json({ message: "Message sent" });
+});
+app.get("/getMessages/:id1/:id2", (req, res) => {
+  const { id1, id2 } = req.params;
+
+  const chatKey = [id1, id2].sort().join("_");
+
+  res.json(chats[chatKey] || []);
 });

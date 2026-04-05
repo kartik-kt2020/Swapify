@@ -8,6 +8,9 @@ function App() {
   const [skillsWanted, setSkillsWanted] = useState("");
   const [matches, setMatches] = useState({});
   const [loadingId, setLoadingId] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+const [chatMessages, setChatMessages] = useState([]);
+const [newMessage, setNewMessage] = useState("");
 
  const findMatches = (id) => {
   setLoadingId(id);
@@ -36,6 +39,17 @@ function App() {
   useEffect(() => {
     fetchUsers();
   }, []);
+useEffect(() => {
+  if (!selectedUser) return;
+
+  const interval = setInterval(() => {
+    fetch(`http://localhost:5000/getMessages/${selectedUser.id1}/${selectedUser.id2}`)
+      .then(res => res.json())
+      .then(data => setChatMessages(data));
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [selectedUser]);
 
   // Add user
   const addUser = () => {
@@ -63,7 +77,34 @@ skillsWanted: skillsWanted
       setSkillsWanted("");
     });
   };
+// 👇 ADD HERE (after addUser, before return)
 
+const openChat = (id1, id2) => {
+  setSelectedUser({ id1, id2 });
+
+  fetch(`http://localhost:5000/getMessages/${id1}/${id2}`)
+    .then(res => res.json())
+    .then(data => setChatMessages(data));
+};
+
+const sendMessage = () => {
+  fetch("http://localhost:5000/sendMessage", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      fromId: selectedUser.id1,
+      toId: selectedUser.id2,
+      message: newMessage
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    setNewMessage("");
+    openChat(selectedUser.id1, selectedUser.id2);
+  });
+};
   return (
     <div style={{ padding: "20px" }}>
       <Navbar />
@@ -133,21 +174,47 @@ skillsWanted: skillsWanted
         {matches[user.id].length === 0 ? (
           <p>No matches found</p>
         ) : (
-          matches[user.id].map(match => (
-            <div key={match.id}>
-            <p>
-  🤝 {match.name} <br />
-  Offers: {match.skillsOffered.join(", ")} <br />
-  ⭐ Score: {match.score}
-</p>
-            </div>
-          ))
+        matches[user.id].map(match => (
+  <div key={match.id}>
+
+    <button onClick={() => openChat(user.id, match.id)}>
+      💬 Chat
+    </button>
+
+    <p>
+      🤝 {match.name} <br />
+      Offers: {match.skillsOffered.join(", ")} <br />
+      ⭐ Score: {match.score}
+    </p>
+
+  </div>
+))
         )}
       </div>
     )}
   </div>
 ))
       )}
+      {/* 👇 CHAT UI (MOVE HERE INSIDE MAIN DIV) */}
+{selectedUser && (
+  <div style={{ marginTop: "20px", borderTop: "2px solid black" }}>
+    <h3>💬 Chat</h3>
+
+    {chatMessages.map((msg, index) => (
+      <p key={index}>
+        {msg.fromId === selectedUser.id1 ? "You" : "Them"}: {msg.message}
+      </p>
+    ))}
+
+    <input
+      value={newMessage}
+      onChange={(e) => setNewMessage(e.target.value)}
+      placeholder="Type message..."
+    />
+
+    <button onClick={sendMessage}>Send</button>
+  </div>
+)}
     </div>
   );
 }     
