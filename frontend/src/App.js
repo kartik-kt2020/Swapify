@@ -1,3 +1,5 @@
+import { Routes, Route, useNavigate } from "react-router-dom";
+import ChatPage from "./Chatpage";
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 
@@ -11,6 +13,7 @@ function App() {
   const [selectedUser, setSelectedUser] = useState(null);
 const [chatMessages, setChatMessages] = useState([]);
 const [newMessage, setNewMessage] = useState("");
+const navigate = useNavigate();
 
  const findMatches = (id) => {
   setLoadingId(id);
@@ -105,117 +108,102 @@ const sendMessage = () => {
     openChat(selectedUser.id1, selectedUser.id2);
   });
 };
-  return (
-    <div style={{ padding: "20px" }}>
-      <Navbar />
-      <h1>Swapify 👥</h1>
+return (
+  <Routes>
 
-      {/* FORM */}
-      <h2>Add User</h2>
+    {/* 🏠 HOME PAGE */}
+    <Route path="/" element={
 
-      <input
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <br /><br />
+      <div className="container">
+        <Navbar />
+        <h1>Swapify 👥</h1>
 
-      <input
-        placeholder="Skills Offered (comma separated)"
-        value={skillsOffered}
-        onChange={(e) => setSkillsOffered(e.target.value)}
-      />
-      <br /><br />
+        {/* FORM */}
+        <h2>🚀 Add User</h2>
 
-      <input
-        placeholder="Skills Wanted (comma separated)"
-        value={skillsWanted}
-        onChange={(e) => setSkillsWanted(e.target.value)}
-      />
-      <br /><br />
+        <input
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-      <button onClick={addUser}>Add User</button>
-      <button onClick={() => {
-        fetch("http://localhost:5000/users", {
-          method: "DELETE"
-        })
-        .then(res => res.json())
-        .then(() => {
-          fetchUsers(); // refresh users
-          setMatches({}); // clear matches
-        });
-      }} style={{ marginLeft: "10px" }}>
-        Clear Users
-      </button>
+        <input
+          placeholder="Skills Offered (comma separated)"
+          value={skillsOffered}
+          onChange={(e) => setSkillsOffered(e.target.value)}
+        />
 
-      <hr />
+        <input
+          placeholder="Skills Wanted (comma separated)"
+          value={skillsWanted}
+          onChange={(e) => setSkillsWanted(e.target.value)}
+        />
 
-      {/* USERS LIST */}
-      <h2>Users</h2>
+        <button onClick={addUser}>Add User</button>
 
-      {users.length === 0 ? (
-        <p>No users yet</p>
-      ) : (
-       users.map(user => (
-  <div key={user.id} style={{ marginBottom: "20px" }}>
-    <h3>{user.name}</h3>
-    <p>Offers: {user.skillsOffered.join(", ")}</p>
-    <p>Wants: {user.skillsWanted.join(", ")}</p>
+        <button onClick={() => {
+          fetch("http://localhost:5000/users", { method: "DELETE" })
+            .then(res => res.json())
+            .then(() => {
+              fetchUsers();
+              setMatches({});
+            });
+        }}>
+          Clear Users
+        </button>
 
-  <button onClick={() => findMatches(user.id)}>
-  {loadingId === user.id ? "Finding..." : "Find Matches"}
-</button>
+        <hr />
 
-    {/* MATCH RESULTS */}
-    {matches[user.id] && (
-      <div style={{ marginTop: "10px", paddingLeft: "10px" }}>
-        <h4>Matches:</h4>
+        {/* USERS */}
+        <h2>Users</h2>
 
-        {matches[user.id].length === 0 ? (
-          <p>No matches found</p>
+        {users.length === 0 ? (
+          <p>No users yet</p>
         ) : (
-        matches[user.id].map(match => (
-  <div key={match.id}>
+          users.map(user => (
+            <div key={user.id}>
+              <h3>{user.name}</h3>
+              <p>Offers: {user.skillsOffered.join(", ")}</p>
+              <p>Wants: {user.skillsWanted.join(", ")}</p>
 
-    <button onClick={() => openChat(user.id, match.id)}>
-      💬 Chat
-    </button>
+              <button onClick={() => findMatches(user.id)}>
+                {loadingId === user.id ? "Finding..." : "Find Matches"}
+              </button>
 
-    <p>
-      🤝 {match.name} <br />
-      Offers: {match.skillsOffered.join(", ")} <br />
-      ⭐ Score: {match.score}
-    </p>
+              {matches[user.id] && (
+                <div>
+                  <h4>Matches:</h4>
 
-  </div>
-))
+                  {matches[user.id].length === 0 ? (
+                    <p>No matches found</p>
+                  ) : (
+                    matches[user.id].map(match => (
+                      <div key={match.id}>
+                        <button onClick={() => navigate(`/chat/${user.id}/${match.id}`)}>
+                          🔥 Vibe Check
+                        </button>
+
+                        <p>
+                          🤝 {match.name} <br />
+                          ⭐ Score: {match.score}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          ))
         )}
+
       </div>
-    )}
-  </div>
-))
-      )}
-      {/* 👇 CHAT UI (MOVE HERE INSIDE MAIN DIV) */}
-{selectedUser && (
-  <div style={{ marginTop: "20px", borderTop: "2px solid black" }}>
-    <h3>💬 Chat</h3>
 
-    {chatMessages.map((msg, index) => (
-      <p key={index}>
-        {msg.fromId === selectedUser.id1 ? "You" : "Them"}: {msg.message}
-      </p>
-    ))}
+    } />
 
-    <input
-      value={newMessage}
-      onChange={(e) => setNewMessage(e.target.value)}
-      placeholder="Type message..."
-    />
+    {/* 💬 CHAT PAGE */}
+    <Route path="/chat/:id1/:id2" element={<ChatPage />} />
 
-    <button onClick={sendMessage}>Send</button>
-  </div>
-)}
-    </div>
-  );
-}     
+  </Routes>
+);
+}
 export default App;
