@@ -2,6 +2,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import ChatPage from "./Chatpage";
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
+import "./App.css";
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,7 @@ function App() {
   const [matches, setMatches] = useState({});
   const [loadingId, setLoadingId] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showUsers, setShowUsers] = useState(false);
 const [chatMessages, setChatMessages] = useState([]);
 const [newMessage, setNewMessage] = useState("");
 const navigate = useNavigate();
@@ -155,20 +157,29 @@ return (
         <hr />
 
         {/* USERS */}
+         <button onClick={() => setShowUsers(!showUsers)}>
+  {showUsers ? "Hide Users" : "Show Users"}
+</button>
+        {showUsers && (
+
+          <>
+
         <h2>Users</h2>
 
         {users.length === 0 ? (
           <p>No users yet</p>
         ) : (
-          users.map(user => (
-            <div key={user.id}>
-              <h3>{user.name}</h3>
-              <p>Offers: {user.skillsOffered.join(", ")}</p>
-              <p>Wants: {user.skillsWanted.join(", ")}</p>
+           <div className="card-container">
+              {users.map(user => (
+  <div key={user.id} className="user-card">
+             <h3>👤 {user.name}</h3>
 
-              <button onClick={() => findMatches(user.id)}>
-                {loadingId === user.id ? "Finding..." : "Find Matches"}
-              </button>
+<p>🎯 <strong>Offers:</strong> {user.skillsOffered.join(", ")}</p>
+<p>🤝 <strong>Wants:</strong> {user.skillsWanted.join(", ")}</p>
+
+<button onClick={() => findMatches(user.id)}>
+  {loadingId === user.id ? "Finding..." : "Find Matches"}
+</button>
 
               {matches[user.id] && (
                 <div>
@@ -193,13 +204,13 @@ return (
                 </div>
               )}
             </div>
-          ))
+              ))}
+            </div>
         )}
-
+          </>
+        )}
       </div>
-
     } />
-
     {/* 💬 CHAT PAGE */}
     <Route path="/chat/:id1/:id2" element={<ChatPage />} />
 
