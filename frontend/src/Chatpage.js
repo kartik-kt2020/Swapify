@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 function ChatPage() {
   const { id1, id2 } = useParams();
   const navigate = useNavigate();
-<button onClick={() => navigate("/")}>⬅ Back</button>
+  
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
@@ -42,6 +42,7 @@ function ChatPage() {
 
   return (
     <div className="container">
+       <button onClick={() => navigate("/")}>⬅ Back</button>
       <h2>💬 Vibe Check</h2>
       <p>Chat between {id1} & {id2}</p>
 

@@ -1,8 +1,9 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import ChatPage from "./Chatpage";
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import "./App.css";
+import Swipe from "./swipe";
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -16,20 +17,32 @@ function App() {
 const [chatMessages, setChatMessages] = useState([]);
 const [newMessage, setNewMessage] = useState("");
 const navigate = useNavigate();
+const [showModal, setShowModal] = useState(true);
+const [loading, setLoading] = useState(false);
 
- const findMatches = (id) => {
+
+const findMatches = (id) => {
+  console.log("CLICKED:", id);
+
   setLoadingId(id);
 
   fetch(`http://localhost:5000/match/${id}`)
-    .then(res => res.json())
+    .then(res => {
+      console.log("RAW RESPONSE:", res);
+      return res.json();
+    })
     .then(data => {
-      setTimeout(() => {   // 👈 ADD THIS
-        setMatches(prev => ({
-          ...prev,
-          [id]: data
-        }));
-        setLoadingId(null);
-      }, 1000); // 1 second delay
+      console.log("MATCH DATA:", data);
+
+      setMatches(prev => ({
+        ...prev,
+        [id]: data
+      }));
+
+      setLoadingId(null);
+    })
+    .catch(err => {
+      console.error("ERROR:", err);
     });
 };
 
@@ -55,9 +68,18 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, [selectedUser]);
+useEffect(() => {
+ if (loading) {
+    setTimeout(() => {
+      navigate("/swipe");
+    }, 1500);
+  }
+}, [loading]);
 
   // Add user
-  const addUser = () => {
+  const handleLaunch = () => {
+  setShowModal(false); // close popup
+  setLoading(true);    // go to loading screen
     fetch("http://localhost:5000/users", {
       method: "POST",
       headers: {
@@ -111,9 +133,45 @@ const sendMessage = () => {
   });
 };
 return (
-  <Routes>
+  <>
+    {showModal && (
+  <div className="modal-overlay">
+    <div className="modal">
+
+      <h2>🚀 Launch Your Journey</h2>
+
+     <input
+  placeholder="Name"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+/>
+
+<input
+  placeholder="Skills Offered"
+  value={skillsOffered}
+  onChange={(e) => setSkillsOffered(e.target.value)}
+/>
+
+<input
+  placeholder="Skills Wanted"
+  value={skillsWanted}
+  onChange={(e) => setSkillsWanted(e.target.value)}
+/>
+
+      <button onClick={handleLaunch}>Launch 🚀</button>
+
+    </div>
+  </div>
+)}
 
     {/* 🏠 HOME PAGE */}
+    {loading && (
+  <div className="loading-screen">
+    <h1>Finding your vibe... 🔥</h1>
+  </div>
+)}
+<Routes>
+    <Route path="/swipe" element={<Swipe />} />
     <Route path="/" element={
 
       <div className="container">
@@ -141,7 +199,7 @@ return (
           onChange={(e) => setSkillsWanted(e.target.value)}
         />
 
-        <button onClick={addUser}>Add User</button>
+        <button onClick={handleLaunch}>Add User</button>
 
         <button onClick={() => {
           fetch("http://localhost:5000/users", { method: "DELETE" })
@@ -172,16 +230,28 @@ return (
            <div className="card-container">
               {users.map(user => (
   <div key={user.id} className="user-card">
-             <h3>👤 {user.name}</h3>
+             <div className="user-header">
+  <div className="avatar">😎</div>
+  <h3>{user.name}</h3>
+</div>
 
-<p>🎯 <strong>Offers:</strong> {user.skillsOffered.join(", ")}</p>
-<p>🤝 <strong>Wants:</strong> {user.skillsWanted.join(", ")}</p>
+<div className="tags">
+  {user.skillsOffered.map((skill, i) => (
+    <span key={i} className="tag offer">{skill}</span>
+  ))}
+</div>
+
+<div className="tags">
+  {user.skillsWanted.map((skill, i) => (
+    <span key={i} className="tag want">{skill}</span>
+  ))}
+</div>
 
 <button onClick={() => findMatches(user.id)}>
   {loadingId === user.id ? "Finding..." : "Find Matches"}
 </button>
 
-              {matches[user.id] && (
+             {matches[user.id] !== undefined && (
                 <div>
                   <h4>Matches:</h4>
 
@@ -190,14 +260,15 @@ return (
                   ) : (
                     matches[user.id].map(match => (
                       <div key={match.id}>
-                        <button onClick={() => navigate(`/chat/${user.id}/${match.id}`)}>
+                      
+
+                       <p>
+  🤝 {match.name}
+  <span className="score">⭐ {match.score}</span>
+</p>
+  <button onClick={() => navigate(`/chat/${user.id}/${match.id}`)}>
                           🔥 Vibe Check
                         </button>
-
-                        <p>
-                          🤝 {match.name} <br />
-                          ⭐ Score: {match.score}
-                        </p>
                       </div>
                     ))
                   )}
@@ -213,8 +284,8 @@ return (
     } />
     {/* 💬 CHAT PAGE */}
     <Route path="/chat/:id1/:id2" element={<ChatPage />} />
-
-  </Routes>
+    </Routes>
+</>
 );
 }
 export default App;
