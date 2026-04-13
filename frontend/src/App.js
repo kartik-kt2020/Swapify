@@ -1,9 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import ChatPage from "./Chatpage";
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import "./App.css";
 import Swipe from "./swipe";
+import Login from "./login";
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -19,6 +20,7 @@ const [newMessage, setNewMessage] = useState("");
 const navigate = useNavigate();
 const [showModal, setShowModal] = useState(true);
 const [loading, setLoading] = useState(false);
+const [loggedInUser, setLoggedInUser] = useState(null);
 
 
 const findMatches = (id) => {
@@ -79,7 +81,7 @@ useEffect(() => {
   // Add user
   const handleLaunch = () => {
   setShowModal(false); // close popup
-  setLoading(true);    // go to loading screen
+  navigate("/login");    // go to loading screen
     fetch("http://localhost:5000/users", {
       method: "POST",
       headers: {
@@ -170,7 +172,8 @@ return (
   </div>
 )}
 <Routes>
-    <Route path="/swipe" element={<Swipe />} />
+   <Route path="/swipe" element={<Swipe loggedInUser={loggedInUser} />} />
+    <Route path="/login" element={<Login setLoggedInUser={setLoggedInUser} />} />
     <Route path="/" element={
 
       <div className="container">

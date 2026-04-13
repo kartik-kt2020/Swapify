@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-function Swipe() {
+function Swipe({ loggedInUser }) {
+
   const [users, setUsers] = useState([]);
   const [index, setIndex] = useState(0);
   const [swipeText, setSwipeText] = useState("");
@@ -16,6 +17,9 @@ function Swipe() {
       .then(res => res.json())
       .then(data => setUsers(data));
   }, []);
+   if (!loggedInUser) {
+  return <h2>Please login first 😭</h2>;
+}
 
  const handleSwipe = (direction) => {
   const user = users[index];
@@ -26,14 +30,15 @@ function Swipe() {
     console.log("LIKED:", user);
 
  // 🔥 CHECK MATCH FROM BACKEND
-    fetch(`http://localhost:5000/match/${user.id}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.length > 0) {
-          console.log("MATCH FOUND:", data[0]);
-          setMatchUser(data[0]); // 🎯 store match
-        }
-      });
+    fetch(`http://localhost:5000/match/${loggedInUser.id}`)
+  .then(res => res.json())
+  .then(data => {
+    const realMatch = data.find(u => u.id === user.id);
+
+    if (realMatch) {
+      setMatchUser(realMatch);
+    }
+  });
         } else {
     console.log("SKIPPED:", user);
   }
