@@ -1,16 +1,18 @@
 import React from "react";
 import logo from "../assets/swapify-logo.png?v=1";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const navigate = useNavigate();
   return (
     <div style={styles.nav}>
       <img src={logo} alt="Swapify-Logo" style={styles.logo} />
       <h2 style={styles.title}>Swapify</h2>
 
       <div style={{ marginLeft: "auto" }}>
-        <button>Home</button>
-        <button>Explore</button>
-        <button>Login</button>
+        <button onClick={() => navigate("/")}>Home</button>
+        <button onClick={() => navigate("/swipe")}>Explore</button>
+        <button onClick={() => navigate("/login")}>Login</button>
       </div>
     </div>
   );

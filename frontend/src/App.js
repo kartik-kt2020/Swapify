@@ -167,7 +167,6 @@ return (
     {/* 🏠 HOME PAGE */}
     {loading && (
   <div className="loading-screen">
-    <h1>Finding your vibe... 🔥</h1>
   </div>
 )}
 <Routes>

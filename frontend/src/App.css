@@ -229,3 +229,98 @@ button {
   font-weight: bold;
   cursor: pointer;
 }
+.swipe-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.card {
+  width: 320px;
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: white;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+.swipe-text {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  opacity: 0.8;
+}
+.swipe-container {
+  position: relative;
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  position: absolute;
+  width: 320px;
+  padding: 20px;
+  border-radius: 20px;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.card.next {
+  transform: scale(0.9);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.card:not(.next) {
+  z-index: 1;
+}
+.no-users {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100px;
+}
+
+.no-users button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #6366f1;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+.liked-section {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  text-align: center;
+  color: white;
+}
+.match-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e293b;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  z-index: 999;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
