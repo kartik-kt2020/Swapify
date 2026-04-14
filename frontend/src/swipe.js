@@ -21,8 +21,12 @@ function Swipe({ loggedInUser }) {
   return <h2>Please login first 😭</h2>;
 }
 
+const filteredUsers = users.filter(
+  (user) => user.id !== loggedInUser?.id
+);
+
  const handleSwipe = (direction) => {
-  const user = users[index];
+  const user = filteredUsers[index];
   setActiveUser(user); // ⭐ STORE CURRENT USER
 
   if (direction === "right") {
@@ -45,10 +49,9 @@ function Swipe({ loggedInUser }) {
   setIndex((prev) => prev + 1);
 };
 
-  if (users.length === 0) return <h2>Loading...</h2>;
-
-  const currentUser = users[index];
-const nextUser = users[index + 1];
+  if (filteredUsers.length === 0) return <h2>Loading...</h2>;
+  const currentUser = filteredUsers[index];
+const nextUser = filteredUsers[index + 1];
 
  return (
   <>
@@ -86,7 +89,7 @@ const nextUser = users[index + 1];
       )}
     </div>
 
-    {index < users.length ? (
+    {index < filteredUsers.length ? (
       <>
         {/* 👇 NEXT CARD */}
         {nextUser && (

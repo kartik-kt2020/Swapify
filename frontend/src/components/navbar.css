@@ -1,0 +1,75 @@
+.navbar{
+   width:100%;
+  box-sizing:border-box;
+   margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 28px;
+  border-radius:22px;
+  background:rgba(15,23,42,.75);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  margin-bottom:35px;
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  cursor:pointer;
+}
+
+.nav-logo{
+  height:58px;
+  width:auto;
+}
+
+.nav-title{
+  font-size:2rem;
+  font-weight:800;
+  margin:0;
+}
+
+.nav-right{
+  display:flex;
+  gap:12px;
+}
+
+.nav-right button{
+  background:linear-gradient(135deg,#4f46e5,#6366f1);
+  color:white;
+  border:none;
+  padding:12px 22px;
+  border-radius:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.3s ease;
+}
+
+.nav-right button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(99,102,241,.35);
+}
+
+@media (max-width:768px){
+  .navbar{
+    flex-direction:column;
+    gap:16px;
+    padding:18px;
+  }
+
+  .nav-right{
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .nav-title{
+    font-size:1.6rem;
+  }
+
+  .nav-logo{
+    height:48px;
+  }
+}

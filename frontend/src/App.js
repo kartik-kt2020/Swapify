@@ -5,6 +5,8 @@ import Navbar from "./components/Navbar";
 import "./App.css";
 import Swipe from "./swipe";
 import Login from "./login";
+import { motion } from "framer-motion";
+import "./components/navbar.css";
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -21,6 +23,8 @@ const navigate = useNavigate();
 const [showModal, setShowModal] = useState(true);
 const [loading, setLoading] = useState(false);
 const [loggedInUser, setLoggedInUser] = useState(null);
+const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+const [cookPopup, setCookPopup] = useState(false);
 
 
 const findMatches = (id) => {
@@ -55,7 +59,14 @@ const findMatches = (id) => {
       .then(res => res.json())
       .then(data => setUsers(data));
   };
+useEffect(() => {
+  const move = (e) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
 
+  window.addEventListener("mousemove", move);
+  return () => window.removeEventListener("mousemove", move);
+}, []);
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -81,7 +92,6 @@ useEffect(() => {
   // Add user
   const handleLaunch = () => {
   setShowModal(false); // close popup
-  navigate("/login");    // go to loading screen
     fetch("http://localhost:5000/users", {
       method: "POST",
       headers: {
@@ -104,6 +114,7 @@ skillsWanted: skillsWanted
       setName("");
       setSkillsOffered("");
       setSkillsWanted("");
+      setCookPopup(true);
     });
   };
 // 👇 ADD HERE (after addUser, before return)
@@ -136,6 +147,18 @@ const sendMessage = () => {
 };
 return (
   <>
+  {cookPopup && (
+  <div className="cook-overlay">
+    <div className="cook-box">
+      <h2>🍳 WE ARE COOKING</h2>
+      <p>WAIT FOR 12 HOURS</p>
+
+      <button onClick={() => setCookPopup(false)}>
+        OK
+      </button>
+    </div>
+  </div>
+)}
     {showModal && (
   <div className="modal-overlay">
     <div className="modal">
@@ -176,12 +199,27 @@ return (
     <Route path="/login" element={<Login setLoggedInUser={setLoggedInUser} />} />
     <Route path="/" element={
 
-      <div className="container">
+      <div className="container premium-home">
+        <div className="orb orb1"></div>
+<div className="orb orb2"></div>
         <Navbar />
-        <h1>Swapify 👥</h1>
+     <div className="hero-section">
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+  >
+    <h1 className="hero-title">Swapify</h1>
+    <p className="hero-subtitle">Trade Skills. Build Future.</p>
+  </motion.div>
 
-        {/* FORM */}
-        <h2>🚀 Add User</h2>
+  <div className="hero-buttons">
+    <button onClick={handleLaunch}>Get Started</button>
+  </div>
+</div> 
+
+<div className="form-section">
+<h2 className="section-title">🚀 Add User</h2>
 
         <input
           placeholder="Name"
@@ -213,25 +251,33 @@ return (
         }}>
           Clear Users
         </button>
+</div>
+      
 
         <hr />
 
         {/* USERS */}
          <button onClick={() => setShowUsers(!showUsers)}>
-  {showUsers ? "Hide Users" : "Show Users"}
+  {showUsers ? "Hide Community" : "Explore Community"}
 </button>
         {showUsers && (
 
           <>
 
-        <h2>Users</h2>
+        <h2 className="section-title">👥 Community</h2>
 
         {users.length === 0 ? (
           <p>No users yet</p>
         ) : (
            <div className="card-container">
               {users.map(user => (
-  <div key={user.id} className="user-card">
+  <motion.div
+  key={user.id}
+  className="user-card"
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4 }}
+>
              <div className="user-header">
   <div className="avatar">😎</div>
   <h3>{user.name}</h3>
@@ -276,7 +322,7 @@ return (
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
               ))}
             </div>
         )}
@@ -291,3 +337,6 @@ return (
 );
 }
 export default App;
+<footer className="footer">
+  Built with ⚡ by Kartik | Swapify 2026
+</footer>
